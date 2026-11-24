@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin - Outage Tracker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header><h1>Admin: advisories</h1><a href="/">Back to site</a></header>
+<main>
+  <div class="card">
+    <label class="muted" for="token">Admin token (from your .env, kept only in this browser tab)</label>
+    <div class="search" style="margin-bottom:0">
+      <input id="token" class="field" type="password" autocomplete="off">
+      <button class="btn primary" id="load">Load</button>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div id="map"></div>
+    <div class="card">
+      <b>Add advisory</b>
+      <div class="muted">Click the map to set the center, then set the radius.</div>
+      <form id="form" class="form">
+        <div><label>Type</label><select id="type" class="field"><option value="water">Water</option><option value="power">Electricity</option></select></div>
+        <div><label>Radius (meters)</label><input id="radius" class="field" type="number" min="100" max="30000" value="1500"></div>
+        <div class="full"><label>Area name</label><input id="area" class="field" required maxlength="120" placeholder="e.g. Brgy. Matina Crossing"></div>
+        <div class="full"><label>Reason (English)</label><input id="reasonEn" class="field" required maxlength="400" placeholder="Pipe leak repair"></div>
+        <div class="full"><label>Reason (Bisaya, optional)</label><input id="reasonCeb" class="field" maxlength="400" placeholder="Gi-ayo ang nabuak nga tubo"></div>
+        <div><label>Starts</label><input id="start" class="field" type="datetime-local" required></div>
+        <div><label>Expected back</label><input id="eta" class="field" type="datetime-local" required></div>
+        <div class="full"><label>Source (link or name)</label><input id="source" class="field" maxlength="120" placeholder="Davao Light advisory, Nov 24"></div>
+        <div><label>Latitude</label><input id="lat" class="field" type="number" step="any" required></div>
+        <div><label>Longitude</label><input id="lng" class="field" type="number" step="any" required></div>
+        <div class="full"><button class="btn primary" type="submit">Publish advisory</button></div>
+      </form>
+    </div>
+  </div>
+
+  <h3>Current advisories</h3>
+  <div class="results" id="list"></div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

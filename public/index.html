@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tubig & Kuryente Tracker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header>
+  <h1 id="t-title">Tubig & Kuryente Tracker</h1>
+  <div class="lang"><button data-l="en" class="on">English</button><button data-l="ceb">Bisaya</button></div>
+</header>
+
+<main>
+  <div class="demo" id="demoNote" hidden></div>
+
+  <div class="search">
+    <input id="q" type="text" autocomplete="off">
+    <button class="btn primary" id="check"></button>
+    <button class="btn" id="locate"></button>
+  </div>
+
+  <div class="quick">
+    <button class="chip" id="qWater"></button>
+    <button class="chip" id="qPower"></button>
+    <button class="chip on" id="qBoth"></button>
+  </div>
+
+  <div id="picks" class="card picks" hidden></div>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <div class="grid">
+    <div id="map"></div>
+    <div>
+      <div class="results" id="results"></div>
+      <div class="card report" id="reportBox" hidden>
+        <b id="r-title"></b>
+        <div class="muted" id="r-help"></div>
+        <div class="btns">
+          <button class="btn small" id="repWater"></button>
+          <button class="btn small" id="repPower"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="muted" id="foot"></footer>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
