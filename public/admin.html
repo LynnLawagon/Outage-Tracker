@@ -27,7 +27,17 @@
       <form id="form" class="form">
         <div><label>Type</label><select id="type" class="field"><option value="water">Water</option><option value="power">Electricity</option></select></div>
         <div><label>Radius (meters)</label><input id="radius" class="field" type="number" min="100" max="30000" value="1500"></div>
-        <div class="full"><label>Area name</label><input id="area" class="field" required maxlength="120" placeholder="e.g. Brgy. Matina Crossing"></div>
+        <div class="full location-section">
+          <div class="location-heading"><b>Affected location</b><span class="muted">Select the exact area in order. Covers all regions of the Philippines.</span></div>
+          <div class="location-grid">
+            <div><label for="region">Region</label><select id="region" class="field" required><option value="">Loading regions...</option></select></div>
+            <div><label for="province">Province</label><select id="province" class="field" required disabled><option value="">Select region first</option></select></div>
+            <div><label for="city">City / Municipality</label><select id="city" class="field" required disabled><option value="">Select province first</option></select></div>
+            <div><label for="barangay">Barangay</label><select id="barangay" class="field" required disabled><option value="">Select city / municipality first</option></select></div>
+          </div>
+          <div class="muted" id="locationHelp">Location lists use Philippine Standard Geographic Code (PSGC) data.</div>
+        </div>
+        <div class="full"><label for="area">Affected area / streets (auto-filled; you may add details)</label><input id="area" class="field" required maxlength="240" placeholder="Choose a barangay above"></div>
         <div class="full"><label>Reason (English)</label><input id="reasonEn" class="field" required maxlength="400" placeholder="Pipe leak repair"></div>
         <div class="full"><label>Reason (Bisaya, optional)</label><input id="reasonCeb" class="field" maxlength="400" placeholder="Gi-ayo ang nabuak nga tubo"></div>
         <div><label>Starts</label><input id="start" class="field" type="datetime-local" required></div>

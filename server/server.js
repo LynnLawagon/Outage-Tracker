@@ -69,10 +69,17 @@ const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 function cleanAdvisory(b) {
   const type = b.type === 'water' || b.type === 'power' ? b.type : null;
   const lat = num(b.lat, -90, 90), lng = num(b.lng, -180, 180), radius = num(b.radius, 100, 30000);
-  const area = str(b.area, 120), en = str(b.reason && b.reason.en, 400), ceb = str(b.reason && b.reason.ceb, 400) || en;
+  const area = str(b.area, 240), en = str(b.reason && b.reason.en, 400), ceb = str(b.reason && b.reason.ceb, 400) || en;
   const start = new Date(b.start), eta = new Date(b.eta);
   if (!type || lat === null || lng === null || radius === null || !area || !en || isNaN(start) || isNaN(eta) || eta <= start) return null;
-  return { id: crypto.randomUUID(), type, area, lat, lng, radius, reason: { en, ceb },
+  const location = b.location && typeof b.location === 'object' ? {
+    regionCode: str(b.location.regionCode, 10), provinceCode: str(b.location.provinceCode, 10),
+    cityMunicipalityCode: str(b.location.cityMunicipalityCode, 10), barangayCode: str(b.location.barangayCode, 10),
+    region: str(b.location.region, 100), province: str(b.location.province, 100),
+    cityMunicipality: str(b.location.cityMunicipality, 100), barangay: str(b.location.barangay, 100)
+  } : null;
+  if (!location || !location.regionCode || !location.cityMunicipalityCode || !location.barangayCode) return null;
+  return { id: crypto.randomUUID(), type, area, location, lat, lng, radius, reason: { en, ceb },
     start: start.toISOString(), eta: eta.toISOString(), source: str(b.source, 120) || 'Admin' };
 }
 

@@ -226,8 +226,80 @@ $('repWater').onclick = () => sendReport('water');
 $('repPower').onclick = () => sendReport('power');
 document.querySelectorAll('.lang button').forEach(b => b.onclick = () => { lang = b.dataset.l; applyLang(); });
 
+/* ---------------- Philippine location dropdowns (PSGC) ---------------- */
+const PSGC_API = 'https://psgc.billyjamesramos.com/api/v1';
+const psgcCache = new Map();
+const publicLocation = { region: null, province: null, city: null, barangay: null, independent: [] };
+async function getPsgc(path) {
+  if (psgcCache.has(path)) return psgcCache.get(path);
+  const response = await fetch(PSGC_API + path);
+  if (!response.ok) throw new Error('Philippine location list is temporarily unavailable.');
+  const json = await response.json(); const rows = json.data || [];
+  psgcCache.set(path, rows); return rows;
+}
+function setLocationOptions(id, rows, placeholder, allowNone=false) {
+  const el = $(id); el.innerHTML = '<option value="">' + esc(placeholder) + '</option>';
+  if (allowNone) el.insertAdjacentHTML('beforeend','<option value="none">Independent city / special area</option>');
+  rows.forEach(row => { const o=document.createElement('option'); o.value=row.code; o.textContent=row.name; el.appendChild(o); });
+  el.disabled = !rows.length && !allowNone;
+}
+function locationText(id) { const el=$(id); return el.value && el.value!=='none' ? el.options[el.selectedIndex].text : ''; }
+function updateLocationSummary() {
+  const parts=['barangay','city','province','region'].map(locationText).filter(Boolean);
+  $('locationSummary').textContent = parts.length ? parts.join(', ') : 'Choose a location to check advisories for that area.';
+}
+async function loadPublicRegions() {
+  try { setLocationOptions('region', await getPsgc('/regions?limit=100'), 'Select region'); }
+  catch(e) { setLocationOptions('region', [], 'Location list unavailable'); toast(e.message); }
+}
+async function publicRegionChanged() {
+  const code=$('region').value; publicLocation.region=code||null; publicLocation.province=publicLocation.city=publicLocation.barangay=null;
+  setLocationOptions('province',[],'Loading provinces...'); setLocationOptions('city',[],'Select province first'); setLocationOptions('barangay',[],'Select city / municipality first');
+  if (!code) { updateLocationSummary(); return; }
+  try {
+    const [provinces, independent]=await Promise.all([getPsgc('/regions/'+code+'/provinces'),getPsgc('/cities-municipalities?region='+code+'&province=none&limit=2000')]);
+    publicLocation.independent=independent;
+    setLocationOptions('province',provinces,provinces.length?'Select province (or independent city)':'No province in this region',provinces.length>0);
+    if (!provinces.length) setLocationOptions('city',independent,'Select city / municipality');
+  } catch(e) { toast(e.message); setLocationOptions('province',[],'Could not load provinces'); }
+  updateLocationSummary();
+}
+async function publicProvinceChanged() {
+  const code=$('province').value; publicLocation.province=code&&code!=='none'?code:null; publicLocation.city=publicLocation.barangay=null;
+  setLocationOptions('city',[],'Loading cities / municipalities...'); setLocationOptions('barangay',[],'Select city / municipality first');
+  if (!code) { updateLocationSummary(); return; }
+  try { const rows=code==='none'?publicLocation.independent:await getPsgc('/provinces/'+code+'/cities-municipalities?limit=500'); setLocationOptions('city',rows,'Select city / municipality'); }
+  catch(e) { toast(e.message); setLocationOptions('city',[],'Could not load cities / municipalities'); }
+  updateLocationSummary();
+}
+async function publicCityChanged() {
+  const code=$('city').value; publicLocation.city=code||null; publicLocation.barangay=null;
+  setLocationOptions('barangay',[],'Loading barangays...');
+  if (!code) { updateLocationSummary(); return; }
+  try { setLocationOptions('barangay',await getPsgc('/cities-municipalities/'+code+'/barangays?limit=1000'),'Select barangay'); }
+  catch(e) { toast(e.message); setLocationOptions('barangay',[],'Could not load barangays'); }
+  updateLocationSummary();
+}
+async function publicBarangayChanged() {
+  publicLocation.barangay=$('barangay').value||null; updateLocationSummary();
+  if (!$('barangay').value) return;
+  const parts=['barangay','city','province','region'].map(locationText).filter(Boolean);
+  $('q').value=parts.join(', '); await search();
+}
+$('region').addEventListener('change',publicRegionChanged);
+$('province').addEventListener('change',publicProvinceChanged);
+$('city').addEventListener('change',publicCityChanged);
+$('barangay').addEventListener('change',publicBarangayChanged);
+$('clearLocation').onclick=()=>{
+  ['region','province','city','barangay'].forEach((id,i)=>{ $(id).value=''; });
+  publicLocation.region=publicLocation.province=publicLocation.city=publicLocation.barangay=null;
+  setLocationOptions('province',[],'Select region first'); setLocationOptions('city',[],'Select province first'); setLocationOptions('barangay',[],'Select city / municipality first');
+  $('q').value=''; updateLocationSummary();
+};
+
 /* ---------------- boot ---------------- */
 initMap();
+loadPublicRegions();
 applyLang();
 loadData();
 setInterval(loadData, 60000);
