@@ -3,67 +3,126 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tubig & Kuryente Tracker</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>SafeZone - Water and Power Interruptions</title>
+<meta name="description" content="Check water and electricity interruptions in your area: what is affected, why, and when service returns.">
+<meta name="theme-color" content="#101a2b">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/vendor/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/vendor/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="/css/style.css">
+<script src="/js/theme.js"></script>
 </head>
-<body>
-<header class="site-header">
-  <a class="brand" href="/"><span class="brand-mark">S</span><span><strong>SafeZone</strong><small>COMMUNITY UTILITIES WATCH</small></span></a>
-  <nav class="top-nav"><a class="active" href="/">Live map</a><a href="#reportBox">Report an outage</a><a href="/admin.html">Admin</a></nav>
-  <div class="lang"><button data-l="en" class="on">EN</button><button data-l="ceb">CEB</button></div>
+<body class="page-public">
+<a class="skip" href="#feed" data-i18n="skip">Skip to advisories</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-water" viewBox="0 0 24 24"><path d="M12 2.7c3.6 4.4 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.4-6.6 6-11z" fill="currentColor"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M13.5 2 5 13.5h6L10 22l9-12h-6.2z" fill="currentColor"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.4 7-12a7 7 0 1 0-14 0c0 5.6 7 12 7 12zm0-9.2a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6z" fill="currentColor"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></g></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></g></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z" fill="currentColor"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></g></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="topbar">
+  <a class="brand" href="/" aria-label="SafeZone home">
+    <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-water"/></svg></span>
+    <span class="brand-text"><strong>SafeZone</strong><small data-i18n="tagline">Community utilities watch</small></span>
+  </a>
+  <nav class="topnav" aria-label="Main">
+    <a href="/" class="active" data-i18n="navMap">Live map</a>
+    <a href="#reportBox" data-i18n="navReport">Report an outage</a>
+    <a href="/admin.html" data-i18n="navAdmin">Admin</a>
+  </nav>
+  <div class="topbar-tools">
+    <div class="seg lang" role="group" aria-label="Language">
+      <button type="button" data-l="en" class="on" aria-pressed="true">EN</button>
+      <button type="button" data-l="ceb" aria-pressed="false">CEB</button>
+    </div>
+    <button type="button" class="icon-btn" id="themeBtn" aria-label="Switch theme"><svg class="ico"><use href="#i-moon"/></svg></button>
+  </div>
 </header>
 
-<main>
-  <section class="intro"><div><div class="eyebrow">LOCAL SERVICE STATUS</div><h1 id="t-title">Water &amp; Power Interruption Tracker</h1><p>Check service interruptions, view affected areas, and share a community report.</p></div><div class="live-pill"><span></span> LIVE ADVISORIES</div></section>
-  <div class="demo" id="demoNote" hidden></div>
+<div class="demo" id="demoNote" role="note" hidden></div>
+<div class="offline" id="offlineNote" role="alert" hidden></div>
 
-  <section class="location-panel"><div class="panel-heading"><div><span class="eyebrow">STEP 1 · SELECT YOUR AREA</span><h2>Where are you checking?</h2></div><span class="panel-icon">⌖</span></div>
-    <div class="location-grid public-location">
-      <div><label for="region">Region</label><select id="region" class="field"><option value="">Loading regions...</option></select></div>
-      <div><label for="province">Province</label><select id="province" class="field" disabled><option value="">Select region first</option></select></div>
-      <div><label for="city">City / Municipality</label><select id="city" class="field" disabled><option value="">Select province first</option></select></div>
-      <div><label for="barangay">Barangay</label><select id="barangay" class="field" disabled><option value="">Select city / municipality first</option></select></div>
-    </div>
-    <div class="location-bottom"><span id="locationSummary">Choose a location to check advisories for that area.</span><button class="text-button" id="clearLocation" type="button">Clear selection</button></div>
-  </section>
-
-  <div class="search">
-    <input id="q" type="text" autocomplete="off">
-    <button class="btn primary" id="check"></button>
-    <button class="btn" id="locate"></button>
-  </div>
-
-  <div class="quick">
-    <button class="chip" id="qWater"></button>
-    <button class="chip" id="qPower"></button>
-    <button class="chip on" id="qBoth"></button>
-  </div>
-
-  <div id="picks" class="card picks" hidden></div>
-
-  <div id="banner" class="banner" hidden></div>
-
-  <div class="section-heading"><div><span class="eyebrow">STEP 2 · CHECK SERVICE STATUS</span><h2>Area overview</h2></div><span class="muted">Tap the map to check another spot</span></div>
-  <div class="grid">
-    <section class="map-panel"><div class="map-heading"><strong>Interruption map</strong><span class="map-legend"><i class="water-dot"></i> Water <i class="power-dot"></i> Electricity</span></div><div id="map"></div></section>
-    <div class="side-panel">
-      <div class="results" id="results"></div>
-      <div class="card report" id="reportBox" hidden>
-        <b id="r-title"></b>
-        <div class="muted" id="r-help"></div>
-        <div class="btns">
-          <button class="btn small" id="repWater"></button>
-          <button class="btn small" id="repPower"></button>
+<div class="app">
+  <aside class="rail" aria-label="Advisories">
+    <section class="check" aria-labelledby="h-check">
+      <h1 id="h-check" data-i18n="title">Is your area affected?</h1>
+      <p class="lede" data-i18n="lede">Search your barangay, street or landmark, or use your location.</p>
+      <form class="search" id="searchForm" role="search">
+        <label class="sr" for="q" data-i18n="phLabel">Address or landmark</label>
+        <div class="input-wrap">
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="q" type="search" autocomplete="off" enterkeyhint="search" maxlength="120">
         </div>
+        <button class="btn primary" id="check" type="submit"></button>
+        <button class="btn icon" id="locate" type="button"><svg class="ico" aria-hidden="true"><use href="#i-target"/></svg><span class="sr"></span></button>
+      </form>
+
+      <details class="browse" id="browse">
+        <summary><span data-i18n="browse">Browse by location</span><svg class="ico chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+        <div class="loc-grid">
+          <div><label for="region" data-i18n="region">Region</label><select id="region" class="field"></select></div>
+          <div><label for="province" data-i18n="province">Province</label><select id="province" class="field" disabled></select></div>
+          <div><label for="city" data-i18n="city">City / municipality</label><select id="city" class="field" disabled></select></div>
+          <div><label for="barangay" data-i18n="barangay">Barangay</label><select id="barangay" class="field" disabled></select></div>
+        </div>
+        <div class="loc-foot"><span id="locationSummary"></span><button class="link-btn" id="clearLocation" type="button" data-i18n="clear">Clear</button></div>
+      </details>
+
+      <div id="picks" class="picks" hidden></div>
+    </section>
+
+    <section id="status" class="status" aria-live="polite" hidden></section>
+
+    <section class="feed-head" aria-labelledby="h-feed">
+      <div class="feed-title">
+        <h2 id="h-feed" data-i18n="feedTitle">Current advisories</h2>
+        <button class="icon-btn small" id="refresh" type="button" aria-label="Refresh"><svg class="ico"><use href="#i-refresh"/></svg></button>
       </div>
+      <div class="stats" id="stats" role="group" aria-label="Filter by status"></div>
+      <div class="seg wide" id="typeSeg" role="group" aria-label="Service type">
+        <button type="button" data-f="both" class="on" aria-pressed="true"></button>
+        <button type="button" data-f="water" aria-pressed="false"></button>
+        <button type="button" data-f="power" aria-pressed="false"></button>
+      </div>
+      <div class="updated" id="updated"></div>
+    </section>
+
+    <div id="feed" class="feed" tabindex="-1" aria-live="polite"><div class="sk card"></div><div class="sk card"></div><div class="sk card"></div></div>
+
+    <section class="report" id="reportBox" hidden aria-labelledby="r-title">
+      <h2 id="r-title"></h2>
+      <p id="r-help"></p>
+      <div class="btns">
+        <button class="btn" id="repWater" type="button"><svg class="ico water" aria-hidden="true"><use href="#i-water"/></svg><span></span></button>
+        <button class="btn" id="repPower" type="button"><svg class="ico power" aria-hidden="true"><use href="#i-power"/></svg><span></span></button>
+      </div>
+    </section>
+
+    <footer class="site-footer"><p id="foot"></p></footer>
+  </aside>
+
+  <section class="mapwrap" aria-label="Interruption map">
+    <div id="map" role="application" aria-label="Map"></div>
+    <div class="map-legend" aria-hidden="true">
+      <span><i class="dot water"></i><b data-i18n="water">Water</b></span>
+      <span><i class="dot power"></i><b data-i18n="power">Electricity</b></span>
+      <span><i class="dot hatch"></i><b data-i18n="scheduled">Scheduled</b></span>
     </div>
-  </div>
+    <div class="map-hint" id="mapHint" data-i18n="tapMap">Tap the map to check another spot</div>
+    <noscript><p class="noscript">This map needs JavaScript.</p></noscript>
+  </section>
+</div>
 
-  <footer class="site-footer"><div class="footer-brand">SAFEZONE <span>·</span> COMMUNITY UTILITIES WATCH</div><p class="muted" id="foot"></p></footer>
-</main>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/vendor/leaflet/leaflet.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>
