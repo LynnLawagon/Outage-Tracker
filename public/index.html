@@ -67,12 +67,28 @@
       </form>
 
       <details class="browse" id="browse">
-        <summary><span data-i18n="browse">Browse by location</span><svg class="ico chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+        <summary><span data-i18n="browse">Browse by location (All 17 PH Regions)</span><svg class="ico chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
         <div class="loc-grid">
-          <div><label for="region" data-i18n="region">Region</label><select id="region" class="field"></select></div>
-          <div><label for="province" data-i18n="province">Province</label><select id="province" class="field" disabled></select></div>
-          <div><label for="city" data-i18n="city">City / municipality</label><select id="city" class="field" disabled></select></div>
-          <div><label for="barangay" data-i18n="barangay">Barangay</label><select id="barangay" class="field" disabled></select></div>
+          <div>
+            <label for="region" data-i18n="region">Region</label>
+            <input id="regionFilter" class="field loc-search" type="search" placeholder="Filter regions..." aria-label="Filter regions">
+            <select id="region" class="field"></select>
+          </div>
+          <div>
+            <label for="province" data-i18n="province">Province</label>
+            <input id="provinceFilter" class="field loc-search" type="search" placeholder="Filter provinces..." aria-label="Filter provinces" disabled>
+            <select id="province" class="field" disabled></select>
+          </div>
+          <div>
+            <label for="city" data-i18n="city">City / municipality</label>
+            <input id="cityFilter" class="field loc-search" type="search" placeholder="Filter cities..." aria-label="Filter cities" disabled>
+            <select id="city" class="field" disabled></select>
+          </div>
+          <div>
+            <label for="barangay" data-i18n="barangay">Barangay</label>
+            <input id="barangayFilter" class="field loc-search" type="search" placeholder="Filter barangays..." aria-label="Filter barangays" disabled>
+            <select id="barangay" class="field" disabled></select>
+          </div>
         </div>
         <div class="loc-foot"><span id="locationSummary"></span><button class="link-btn" id="clearLocation" type="button" data-i18n="clear">Clear</button></div>
       </details>
@@ -111,15 +127,17 @@
   </aside>
 
   <section class="mapwrap" aria-label="Interruption map">
-    <div id="map" role="application" aria-label="Map"></div>
-    <div class="map-legend" aria-hidden="true">
-      <span><i class="dot water"></i><b data-i18n="water">Water</b></span>
-      <span><i class="dot power"></i><b data-i18n="power">Electricity</b></span>
-      <span><i class="dot hatch"></i><b data-i18n="scheduled">Scheduled</b></span>
-    </div>
-    <div class="map-hint" id="mapHint" data-i18n="tapMap">Tap the map to check another spot</div>
-    <noscript><p class="noscript">This map needs JavaScript.</p></noscript>
-  </section>
+      <div id="map" role="application" aria-label="Map"></div>
+      <div class="map-legend" aria-label="Map legend">
+        <span><i class="dot water"></i><b data-i18n="water">Water</b></span>
+        <span><i class="dot power"></i><b data-i18n="power">Electricity</b></span>
+        <span><i class="dot poly"></i><b>Exact Boundary</b></span>
+        <span><i class="dot hatch"></i><b>Scheduled / Approximate Area</b></span>
+        <span><i class="dot recheck"></i><b>Needs Recheck</b></span>
+      </div>
+      <div class="map-hint" id="mapHint" data-i18n="tapMap">Tap the map or click any highlighted boundary/marker for details</div>
+      <noscript><p class="noscript">This map needs JavaScript.</p></noscript>
+    </section>
 </div>
 
 <script src="/vendor/leaflet/leaflet.js"></script>

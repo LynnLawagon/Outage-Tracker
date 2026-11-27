@@ -213,3 +213,103 @@ label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bot
   .stat b{font-size:19px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* SafeZone Dark Navy + Forest-Green Identity Tokens */
+:root {
+  --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bg: #eef2f6;
+  --surface: #ffffff;
+  --surface-2: #f4f7fa;
+  --ink: #0d1b2a;
+  --ink-2: #3c4e64;
+  --ink-3: #64768c;
+  --line: #d6dfe9;
+  --line-strong: #bcc8d6;
+  --water: #0284c7;
+  --water-bg: #e0f2fe;
+  --water-ink: #0369a1;
+  --power: #d97706;
+  --power-bg: #fef3c7;
+  --power-ink: #92400e;
+  --ok: #1b6b43;          /* forest-green accent */
+  --ok-bg: #e2f3ea;
+  --bad: #c2352b;
+  --bad-bg: #fbe9e7;
+  --warn-bg: #fff6dc;
+  --warn-line: #ecd28a;
+  --warn-ink: #6b5200;
+  --primary: #0d1b2a;     /* dark navy primary */
+  --primary-ink: #ffffff;
+  --accent-forest: #1f7a4c;
+  --focus: #2a9d63;
+  --r-lg: 14px;
+  --r-md: 10px;
+  --r-sm: 7px;
+  --shadow: 0 1px 2px rgba(13, 27, 42, .06), 0 4px 14px rgba(13, 27, 42, .05);
+  --topbar-h: 60px;
+}
+
+:root[data-theme=dark] {
+  --bg: #09131f;          /* deep navy canvas */
+  --surface: #0f1e30;     /* dark navy card surface */
+  --surface-2: #15263c;
+  --ink: #eaf1f8;
+  --ink-2: #b4c3d4;
+  --ink-3: #8396ad;
+  --line: #21364f;
+  --line-strong: #2f4968;
+  --water: #38bdf8;
+  --water-bg: #0c334d;
+  --water-ink: #7dd3fc;
+  --power: #fbbf24;
+  --power-bg: #3b2a0a;
+  --power-ink: #fcd34d;
+  --ok: #34b371;          /* vibrant forest-green on dark navy */
+  --ok-bg: #103324;
+  --bad: #f87171;
+  --bad-bg: #3b1718;
+  --warn-bg: #33270c;
+  --warn-line: #5c4614;
+  --warn-ink: #fde68a;
+  --primary: #1f7a4c;     /* forest-green action buttons */
+  --primary-ink: #ffffff;
+  --accent-forest: #34b371;
+  --focus: #34b371;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 4px 14px rgba(0, 0, 0, .28);
+  color-scheme: dark;
+}
+
+/* Verification & Mapping Level Badges */
+.badge.verified { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.badge.community { background: var(--water-bg); color: var(--water-ink); border-color: transparent; }
+.badge.unverified { background: var(--surface-2); color: var(--ink-3); }
+.badge.recheck { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line); }
+.badge.approx { background: var(--warn-bg); color: var(--warn-ink); font-size: 11px; }
+
+.adv-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.adv-meta-grid b { color: var(--ink); font-weight: 600; }
+
+.loc-search {
+  margin-bottom: 6px;
+  min-height: 32px;
+  font-size: 13px;
+  padding: 5px 9px;
+}
+
+.map-legend {
+  flex-wrap: wrap;
+  max-width: calc(100% - 24px);
+  gap: 10px 14px;
+}
+.dot.recheck { border: 2px dotted var(--power); background: transparent; }
+.dot.poly { border-radius: 3px; border: 2px solid var(--ok); background: color-mix(in srgb, var(--ok) 25%, transparent); }

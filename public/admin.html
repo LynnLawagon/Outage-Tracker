@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#101a2b">
+<meta name="theme-color" content="#0d1b2a">
 <title>SafeZone Admin</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/vendor/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,10 +59,16 @@
       <div class="toolbar">
         <input id="filterText" class="field" type="search" placeholder="Search area or reason" aria-label="Search advisories">
         <select id="filterStatus" class="field" aria-label="Status">
-          <option value="all">All statuses</option><option value="ongoing">Ongoing</option><option value="scheduled">Scheduled</option><option value="restored">Restored</option>
+          <option value="all">All statuses</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="recheck">Needs Recheck</option>
+          <option value="restored">Restored</option>
         </select>
         <select id="filterType" class="field" aria-label="Service type">
-          <option value="all">Water and electricity</option><option value="water">Water</option><option value="power">Electricity</option>
+          <option value="all">Water and electricity</option>
+          <option value="water">Water</option>
+          <option value="power">Electricity</option>
         </select>
       </div>
       <div id="list" class="adm-list"></div>
@@ -73,7 +79,10 @@
         <h2 id="h-edit">New advisory</h2>
         <button class="link-btn" id="cancelEdit" type="button" hidden>Cancel editing</button>
       </div>
-      <div class="map-box"><div id="map"></div><div class="map-note" id="mapNote">Click the map to set the zone center</div></div>
+      <div class="map-box">
+        <div id="map"></div>
+        <div class="map-note" id="mapNote">Click the map to set the zone center</div>
+      </div>
       <form id="form" class="form" novalidate>
         <div class="full">
           <label id="l-type">Service</label>
@@ -84,7 +93,49 @@
         </div>
 
         <div class="full">
-          <label for="radius">Zone radius: <output id="radiusOut">1,500 m</output></label>
+          <label for="provider">Utility Provider</label>
+          <input id="provider" class="field" maxlength="140" placeholder="Davao Light and Power Company / Davao City Water District">
+        </div>
+
+        <div class="full">
+          <label for="mappingLevel">GIS Mapping Coverage Level</label>
+          <select id="mappingLevel" class="field">
+            <option value="1">Level 1 — Exact Geographic Coverage (Verified GeoJSON Polygon)</option>
+            <option value="2">Level 2 — Specific Location (Road Segment LineString or Landmark Point)</option>
+            <option value="3" selected>Level 3 — Approximate Coverage (Fallback Circle with Disclaimer)</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <label for="geometryJson">GeoJSON Geometry (Level 1 Polygon or Level 2 LineString / Point)</label>
+          <textarea id="geometryJson" class="field" placeholder='{"type":"Polygon","coordinates":[[[125.62,7.10],[125.64,7.10],[125.64,7.12],[125.62,7.12],[125.62,7.10]]]}'></textarea>
+        </div>
+
+        <div class="full">
+          <label for="specificLocations">Specific Affected Roads, Subdivisions, or Landmarks (comma-separated)</label>
+          <input id="specificLocations" class="field" maxlength="400" placeholder="J.P. Laurel Ave, Arroyo St, Bajada Substation">
+        </div>
+
+        <div class="full">
+          <label for="sourceUrl">Original Official Announcement URL</label>
+          <input id="sourceUrl" class="field" type="url" maxlength="400" placeholder="https://www.davaolight.com/post/...">
+        </div>
+
+        <div>
+          <label for="publishedAt">Announcement Publication Date</label>
+          <input id="publishedAt" class="field" type="datetime-local">
+        </div>
+        <div>
+          <label for="verification">Verification Status</label>
+          <select id="verification" class="field">
+            <option value="Officially Confirmed">Officially Confirmed</option>
+            <option value="Unverified">Unverified</option>
+            <option value="Community Report">Community Report</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <label for="radius">Approximate zone radius (Level 3 fallback): <output id="radiusOut">1,500 m</output></label>
           <input id="radius" type="range" min="100" max="10000" step="100" value="1500">
         </div>
 
@@ -98,25 +149,38 @@
           </div>
         </fieldset>
 
-        <div class="full"><label for="area">Affected area and streets</label>
-          <input id="area" class="field" maxlength="240" placeholder="Pick a barangay above, then add street details if needed"></div>
-        <div class="full"><label for="reasonEn">Reason (English)</label>
-          <input id="reasonEn" class="field" maxlength="400" placeholder="Pipe leak repair on the main line"></div>
-        <div class="full"><label for="reasonCeb">Reason (Bisaya, optional)</label>
-          <input id="reasonCeb" class="field" maxlength="400" placeholder="Gi-ayo ang nabuak nga tubo"></div>
+        <div class="full">
+          <label for="area">Affected area and streets</label>
+          <input id="area" class="field" maxlength="240" placeholder="Pick a barangay above, then add street details if needed">
+        </div>
+        <div class="full">
+          <label for="reasonEn">Reason (English)</label>
+          <input id="reasonEn" class="field" maxlength="400" placeholder="Pipe leak repair on the main line">
+        </div>
+        <div class="full">
+          <label for="reasonCeb">Reason (Bisaya, optional)</label>
+          <input id="reasonCeb" class="field" maxlength="400" placeholder="Gi-ayo ang nabuak nga tubo">
+        </div>
 
         <div><label for="start">Starts</label><input id="start" class="field" type="datetime-local"></div>
         <div><label for="eta">Expected back</label><input id="eta" class="field" type="datetime-local"></div>
         <div class="full chips" id="durChips" aria-label="Set expected back time">
           <span>Duration</span>
-          <button type="button" class="chip" data-h="2">2 h</button><button type="button" class="chip" data-h="4">4 h</button>
-          <button type="button" class="chip" data-h="8">8 h</button><button type="button" class="chip" data-h="12">12 h</button><button type="button" class="chip" data-h="24">24 h</button>
+          <button type="button" class="chip" data-h="2">2 h</button>
+          <button type="button" class="chip" data-h="4">4 h</button>
+          <button type="button" class="chip" data-h="8">8 h</button>
+          <button type="button" class="chip" data-h="12">12 h</button>
+          <button type="button" class="chip" data-h="24">24 h</button>
         </div>
 
-        <div class="full"><label for="source">Source</label>
-          <input id="source" class="field" maxlength="120" placeholder="Davao Light advisory, Nov 24"></div>
-        <div class="full"><label for="note">Public note (optional)</label>
-          <input id="note" class="field" maxlength="300" placeholder="e.g. Water trucks at the barangay hall"></div>
+        <div class="full">
+          <label for="source">Source</label>
+          <input id="source" class="field" maxlength="120" placeholder="Davao Light advisory, Nov 24">
+        </div>
+        <div class="full">
+          <label for="note">Public note (optional)</label>
+          <input id="note" class="field" maxlength="300" placeholder="e.g. Water trucks at the barangay hall">
+        </div>
 
         <div><label for="lat">Latitude</label><input id="lat" class="field" type="number" step="any"></div>
         <div><label for="lng">Longitude</label><input id="lng" class="field" type="number" step="any"></div>
